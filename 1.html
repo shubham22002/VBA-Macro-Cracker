@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBA Password Cracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: radial-gradient(circle at center, #0e0e2c, #1b1b3a);
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 20px;
+            padding: 30px;
+            background-color: rgba(20, 20, 40, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px);
+            position: relative;
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #00ff99;
+            text-shadow: 0 0 10px #00ff99;
+        }
+
+        .file-icons {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .file-icons i {
+            margin: 0 15px;
+            font-size: 50px;
+            transition: transform 0.3s, color 0.3s;
+            filter: drop-shadow(0 0 5px #00ff99);
+        }
+
+        .file-icons i:hover {
+            transform: scale(1.2);
+            color: #00ffe5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #00ff99;
+            border-radius: 5px;
+            background: transparent;
+            color: #ffffff;
+            transition: border-color 0.3s;
+            font-size: 16px;
+        }
+
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #00ffd5;
+        }
+
+        button {
+            background-color: #00ff99;
+            border: none;
+            color: #000000;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: #00cc7a;
+            transform: translateY(-2px);
+        }
+
+        button:before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: transform 0.5s;
+            z-index: 0;
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        button:hover:before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .educational-note {
+            text-align: center;
+            font-size: 20px;
+            color: #00ff99;
+            margin: 10px 0;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff99;
+        }
+
+        .error-message {
+            color: #ff0000;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(18, 173, 90, 0.956);
+            color: #000000;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(111, 225, 111, 0.5);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s, fadeOut 0.5s 4.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .about-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .about-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .about-info {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: rgba(20, 20, 40, 0.9);
+            border: 2px solid #07e189;
+            border-radius: 10px;
+            padding: 10px;
+            color: #00ff99;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .about-icon:hover+.about-info {
+            display: block;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            h3 {
+                font-size: 24px;
+            }
+
+            button {
+                font-size: 16px;
+            }
+
+            .about-info {
+                width: 200px;
+            }
+        }
+    </style>
+    <script>
+        function validateForm(event) {
+            const fileInput = document.getElementById('file');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+
+            if (!fileInput.value) {
+                event.preventDefault(); // Prevent form submission
+                errorMessage.style.display = 'block'; // Show error message
+                successMessage.style.display = 'none'; // Hide success message
+            } else {
+                errorMessage.style.display = 'none'; // Hide error message
+                successMessage.style.display = 'block'; // Show success message
+
+                // Hide the success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h3><i class="fas fa-lock"></i> VBA Macro Password Cracker</h3>
+        <div class="educational-note">FOR EDUCATIONAL PURPOSES ONLY. ANY MISUSE IS STRICTLY PROHIBITED.</div>
+        <div class="file-icons">
+            <i class="fas fa-file-word" title="Word Document"></i>
+            <i class="fas fa-file-excel" title="Excel Spreadsheet"></i>
+            <i class="fas fa-file-powerpoint" title="PowerPoint Presentation"></i>
+        </div>
+        <form method="POST" action="/upload" enctype="multipart/form-data" onsubmit="validateForm(event)">
+            <div class="form-group">
+                <label for="file"><i class="fas fa-file-upload"></i> Select a Macro-Enabled Office File:</label>
+                <input type="file" id="file" name="file" accept=".docm, .xlsm, .pptm" required>
+                <span>(.docm, .xlsm, .pptm)</span>
+                <div id="error-message" class="error-message">Please select a file before uploading.</div>
+                <div id="success-message" class="success-message">
+                    <h2 style="margin: 0; color: #000;">Note</h2>
+                    <ol style="list-style-type: none; padding: 0; margin: 10px 0 0 0;">
+                        <li>Open the file and enable editing</li>
+                        <li>Press Alt + F11 or access it from the Developer tab</li>
+                        <li>Click "Yes" three times. Congrats, the macro got cracked!</li>
+                    </ol>
+                </div>
+            </div>
+            <button type="submit"><i class="fas fa-unlock-alt"></i> Upload and Recover or Crack Password</button>
+        </form>
+
+        <i class="fas fa-info-circle about-icon" title="About Us"></i>
+        <div class="about-info">
+            Develop By <b>SHUBHAM PAWAR</b> <br>
+            This tool allows you to recover passwords from VBA macros in Office files.
+        </div>
+    </div>
+</body>
+
+</html>
